@@ -73,7 +73,7 @@ col_a, col_b = st.columns(2)
 
 with col_a:
     st.subheader('Distribution of Sales Decline')
-    fig_hist = px.histogram(filtered_df, x='Sales Decline', nbins=30, marginal="box",
+    fig_hist = px.histogram(filtered_df, x='Sales Decline', color='Region', nbins=30, marginal="box",
                             hover_data=filtered_df.columns, title='Sales Decline Across All Observations')
     st.plotly_chart(fig_hist, use_container_width=True)
 
@@ -89,11 +89,14 @@ st.markdown("---")
 st.header('2. Inventory & Demand Alignment')
 st.markdown("Does inventory match local demand? What is the financial impact?")
 
+# Using color to show hierarchy by Sales Decline value
 fig_inv = px.bar(filtered_df.groupby('Inventory–Local Demand Match')['Sales Decline'].mean().reset_index(),
                  x='Inventory–Local Demand Match', y='Sales Decline',
+                 color='Sales Decline',
                  category_orders={"Inventory–Local Demand Match": ["High", "Medium", "Low"]},
                  title='Average Sales Decline by Inventory–Demand Match')
 st.plotly_chart(fig_inv, use_container_width=True)
+
 
 st.markdown("---")
 
@@ -101,11 +104,14 @@ st.markdown("---")
 st.header('3. Customer Behavior')
 st.markdown("Analyzing how basket size, trip frequency, and loyalty relate to sales decline.")
 
+# Using color to show hierarchy by Sales Decline value
 fig_loyalty = px.bar(filtered_df.groupby('Customer Loyalty & Engagement')['Sales Decline'].mean().reset_index(),
                      x='Customer Loyalty & Engagement', y='Sales Decline',
+                     color='Sales Decline',
                      category_orders={"Customer Loyalty & Engagement": ["Strong", "Moderate", "Weak"]},
                      title='Average Sales Decline by Customer Loyalty & Engagement')
 st.plotly_chart(fig_loyalty, use_container_width=True)
+
 
 st.markdown("---")
 
@@ -118,12 +124,14 @@ col_c, col_d = st.columns(2)
 with col_c:
     fig_promo_sales = px.bar(filtered_df.groupby('Promotions & Pricing Effectiveness')['Sales Decline'].mean().reset_index(),
                              x='Promotions & Pricing Effectiveness', y='Sales Decline',
+                             color='Promotions & Pricing Effectiveness',  # Use category for color
                              title='Sales Decline by Promotion Effectiveness')
     st.plotly_chart(fig_promo_sales, use_container_width=True)
 
 with col_d:
     fig_promo_costs = px.bar(filtered_df.groupby('Promotions & Pricing Effectiveness')['Inventory Holding Costs (₱)'].mean().reset_index(),
                              x='Promotions & Pricing Effectiveness', y='Inventory Holding Costs (₱)',
+                             color='Promotions & Pricing Effectiveness', # Use category for color
                              title='Avg Holding Costs by Promotion Effectiveness')
     st.plotly_chart(fig_promo_costs, use_container_width=True)
 
@@ -137,13 +145,13 @@ col_e, col_f = st.columns(2)
 
 with col_e:
     fig_comp_sales = px.scatter(filtered_df, x='Competitor New Stores', y='Sales Decline',
-                                color='Region', trendline='ols',
+                                color='Region', trendline='ols', # Use Region for color
                                 title='Sales Decline vs. Competitor New Stores')
     st.plotly_chart(fig_comp_sales, use_container_width=True)
 
 with col_f:
     fig_comp_share = px.scatter(filtered_df, x='Competitor Ad Spend (₱)', y='Market Share in Region',
-                                color='Region', trendline='ols',
+                                color='Region', trendline='ols', # Use Region for color
                                 title='Market Share vs. Competitor Ad Spend')
     st.plotly_chart(fig_comp_share, use_container_width=True)
 
@@ -154,12 +162,12 @@ st.header('6. Financial Impact')
 st.markdown("Visualizing the relationship between sales decline and key financial metrics.")
 
 fig_cost_scatter = px.scatter(filtered_df, x='Sales Decline', y='Inventory Holding Costs (₱)',
-                              color='Region', trendline='ols',
+                              color='Region', trendline='ols', # Use Region for color
                               title='Inventory Holding Costs vs. Sales Decline')
 st.plotly_chart(fig_cost_scatter, use_container_width=True)
 
 fig_share_scatter = px.scatter(filtered_df, x='Sales Decline', y='Market Share in Region',
-                               color='Region', trendline='ols',
+                               color='Region', trendline='ols', # Use Region for color
                                title='Market Share vs. Sales Decline')
 st.plotly_chart(fig_share_scatter, use_container_width=True)
 
@@ -176,7 +184,7 @@ st.plotly_chart(fig_time, use_container_width=True)
 
 st.markdown("---")
 
-# --- 8. Dashboard-Friendly Views ---
+# --- 8. Top/Bottom 10 Stores ---
 st.header('8. Top/Bottom 10 Stores')
 st.markdown("Identifying the highest and lowest performing stores at a glance.")
 
@@ -190,6 +198,7 @@ top_bottom_df = pd.concat([top_10, bottom_10]).reset_index()
 top_bottom_df.columns = ['Store_ID', 'Average Sales Decline']
 top_bottom_df['Performance'] = ['Best'] * 10 + ['Worst'] * 10
 
+# Use a custom color map for the 'Performance' category
 fig_top_bottom = px.bar(
     top_bottom_df,
     x='Average Sales Decline',
